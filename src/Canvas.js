@@ -11,6 +11,8 @@ import {
   playerRight,
   npcMap,
 } from "./images";
+import { Inventory } from "./Inventory";
+import { Music } from "./Music";
 
 const speed = 10;
 
@@ -84,7 +86,7 @@ export const Canvas = () => {
         if (element === 1025) {
           ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
           borderElements.push(
-            ctx.fillRect(j * 66 + position.x, i * 66 + position.y, 66, 66)
+            ctx.fillRect(j * 66 + position.x, i * 66 + position.y, 66, 66) //PROBLEM!
           );
         }
       });
@@ -138,5 +140,11 @@ export const Canvas = () => {
     return () => window.removeEventListener("keydown", keyPress);
   });
 
-  return <canvas ref={canvasRef} />;
+  return (
+    <>
+      <Music />
+      <Inventory />
+      <canvas ref={canvasRef} />
+    </>
+  );
 };
