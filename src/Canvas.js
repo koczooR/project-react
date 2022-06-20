@@ -1,15 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { collisionsArray } from "./mapData";
-import {
-  img,
-  foreground,
-  foreground2,
-  playerDown,
-  playerUp,
-  playerLeft,
-  playerRight,
-  npcMap,
-} from "./images";
+import { img, foreground, foreground2, playerDown, playerUp, playerLeft, playerRight, npcMap } from "./images";
 import { Inventory } from "./Inventory";
 import { Music } from "./Music";
 
@@ -61,31 +52,8 @@ export const Canvas = () => {
     }
 
     ctx.drawImage(img, position.x, position.y);
-
-    ctx.drawImage(
-      npcMap,
-      srcX,
-      srcY,
-      192 / 4,
-      68,
-      npcPosition.x,
-      npcPosition.y,
-      192 / 4,
-      68
-    );
-
-    ctx.drawImage(
-      playerDirection,
-      srcX,
-      srcY,
-      192 / 4,
-      68,
-      canvas.width / 2 - 22,
-      canvas.height / 2,
-      192 / 4,
-      68
-    );
-
+    ctx.drawImage(npcMap, srcX, srcY, 192 / 4, 68, npcPosition.x, npcPosition.y, 192 / 4, 68);
+    ctx.drawImage(playerDirection, srcX, srcY, 192 / 4, 68, canvas.width / 2 - 22, canvas.height / 2, 192 / 4, 68);
     ctx.drawImage(foreground2, position.x, position.y);
     ctx.drawImage(foreground, position.x, position.y);
 
