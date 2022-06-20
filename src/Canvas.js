@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useCanvas } from "./useCanvas";
+import { useState, useEffect, useRef } from "react";
 import { collisionsArray } from "./mapData";
 import {
   img,
@@ -27,38 +26,41 @@ const playerMovement = () => {
   srcX = currentFrame * (192 / 4);
 };
 
+const isColliding = ({ value }) => {
+  return (
+    window.innerWidth / 2 - 22 + 192 / 4 >= value.x &&
+    window.innerWidth / 2 - 22 <= value.x + 66 &&
+    window.innerHeight / 2 + 68 >= value.y &&
+    window.innerHeight / 2 + 68 / 2 <= value.y + 66
+  );
+};
+
 export const Canvas = () => {
+  const canvasRef = useRef();
   const defaultPosition = {
-    x: Math.floor(window.innerWidth / 2 - 4620 / 2 + 66),
-    y: Math.floor(window.innerHeight / 2 - 2640 / 2),
+    x: window.innerWidth / 2 - 4620 / 2 + 66,
+    y: window.innerHeight / 2 - 2640 / 2,
   };
   const [position, setPosition] = useState({ ...defaultPosition });
   const [playerDirection, setPlayerDirection] = useState(playerDown);
   const [npcPosition, setNpcPosition] = useState({
-    x: Math.floor(window.innerWidth / 2 - 192 / 4 + 716),
-    y: Math.floor(window.innerHeight / 2 - 66),
+    x: window.innerWidth / 2 - 192 / 4 + 716,
+    y: window.innerHeight / 2 - 66,
   });
 
-  framesDrawn++;
-  if (framesDrawn >= 5) {
-    currentFrame++;
-    framesDrawn = 0;
-  }
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
 
-  const canvasRef = useCanvas(([canvas, ctx]) => {
+    framesDrawn++;
+    if (framesDrawn >= 5) {
+      currentFrame++;
+      framesDrawn = 0;
+    }
+
     ctx.drawImage(img, position.x, position.y);
-
-    ctx.drawImage(
-      playerDirection,
-      srcX,
-      srcY,
-      192 / 4,
-      68,
-      canvas.width / 2 - 22,
-      canvas.height / 2,
-      192 / 4,
-      68
-    );
 
     ctx.drawImage(
       npcMap,
@@ -72,8 +74,20 @@ export const Canvas = () => {
       68
     );
 
-    ctx.drawImage(foreground, position.x, position.y);
+    ctx.drawImage(
+      playerDirection,
+      srcX,
+      srcY,
+      192 / 4,
+      68,
+      canvas.width / 2 - 22,
+      canvas.height / 2,
+      192 / 4,
+      68
+    );
+
     ctx.drawImage(foreground2, position.x, position.y);
+    ctx.drawImage(foreground, position.x, position.y);
 
     let borderMap = [];
     for (let i = 0; i < collisionsArray.length; i += 70) {
@@ -84,58 +98,103 @@ export const Canvas = () => {
     borderMap.forEach((row, i) => {
       row.forEach((element, j) => {
         if (element === 1025) {
-          ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-          borderElements.push(
-            ctx.fillRect(j * 66 + position.x, i * 66 + position.y, 66, 66) //PROBLEM!
-          );
+          borderElements.push({
+            pos: {
+              x: j * 66 + position.x,
+              y: i * 66 + position.y,
+            },
+          });
         }
       });
     });
-  });
 
-  const keyPress = (e) => {
-    if (e.key === "w") {
-      setPlayerDirection(playerUp);
-      setPosition((prevState) => ({ ...prevState, y: prevState.y + speed }));
-      playerMovement();
-      setNpcPosition((prevState) => ({
-        ...prevState,
-        y: prevState.y + speed,
-      }));
-    }
+    const keyPress = (e) => {
+      let moving = true;
+      if (e.key === "w") {
+        setPlayerDirection(playerUp);
+        playerMovement();
 
-    if (e.key === "s") {
-      setPlayerDirection(playerDown);
-      setPosition((prevState) => ({ ...prevState, y: prevState.y - speed }));
-      playerMovement();
-      setNpcPosition((prevState) => ({
-        ...prevState,
-        y: prevState.y - speed,
-      }));
-    }
+        borderElements.forEach((el) => {
+          if (isColliding({ value: { x: el.pos.x, y: el.pos.y + speed } })) {
+            moving = false;
+          }
+        });
+        if (moving) {
+          setPosition((prevState) => ({
+            ...prevState,
+            y: prevState.y + speed,
+          }));
+          setNpcPosition((prevState) => ({
+            ...prevState,
+            y: prevState.y + speed,
+          }));
+        }
+      }
 
-    if (e.key === "a") {
-      setPlayerDirection(playerLeft);
-      setPosition((prevState) => ({ ...prevState, x: prevState.x + speed }));
-      playerMovement();
-      setNpcPosition((prevState) => ({
-        ...prevState,
-        x: prevState.x + speed,
-      }));
-    }
+      if (e.key === "s") {
+        setPlayerDirection(playerDown);
+        playerMovement();
 
-    if (e.key === "d") {
-      setPlayerDirection(playerRight);
-      setPosition((prevState) => ({ ...prevState, x: prevState.x - speed }));
-      playerMovement();
-      setNpcPosition((prevState) => ({
-        ...prevState,
-        x: prevState.x - speed,
-      }));
-    }
-  };
+        borderElements.forEach((el) => {
+          if (isColliding({ value: { x: el.pos.x, y: el.pos.y - speed } })) {
+            moving = false;
+          }
+        });
+        if (moving) {
+          setPosition((prevState) => ({
+            ...prevState,
+            y: prevState.y - speed,
+          }));
+          setNpcPosition((prevState) => ({
+            ...prevState,
+            y: prevState.y - speed,
+          }));
+        }
+      }
 
-  useEffect(() => {
+      if (e.key === "a") {
+        setPlayerDirection(playerLeft);
+        playerMovement();
+
+        borderElements.forEach((el) => {
+          if (isColliding({ value: { x: el.pos.x + speed, y: el.pos.y } })) {
+            moving = false;
+          }
+        });
+        if (moving) {
+          setPosition((prevState) => ({
+            ...prevState,
+            x: prevState.x + speed,
+          }));
+          setNpcPosition((prevState) => ({
+            ...prevState,
+            x: prevState.x + speed,
+          }));
+        }
+      }
+
+      if (e.key === "d") {
+        setPlayerDirection(playerRight);
+        playerMovement();
+
+        borderElements.forEach((el) => {
+          if (isColliding({ value: { x: el.pos.x - speed, y: el.pos.y } })) {
+            moving = false;
+          }
+        });
+        if (moving) {
+          setPosition((prevState) => ({
+            ...prevState,
+            x: prevState.x - speed,
+          }));
+          setNpcPosition((prevState) => ({
+            ...prevState,
+            x: prevState.x - speed,
+          }));
+        }
+      }
+    };
+
     window.addEventListener("keydown", keyPress);
     return () => window.removeEventListener("keydown", keyPress);
   });
