@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { collisionsArray, textActivationArray, houseActivationArray, moveToCityArray } from "./mapData";
-import { img, foreground, foreground2, playerDown, playerUp, playerLeft, playerRight, npcMap } from "./images";
+import { collisionsArray, textActivationArray, houseActivationArray, moveToCityArray, chestArray } from "./mapData";
+import { img, foreground, foreground2, playerDown, playerUp, playerLeft, playerRight, npcMap, chestImg, openChest } from "./images";
 import { Inventory } from "./Inventory";
 import { Music } from "./Music";
 import { InfoBox, HouseEnter, MoveToCity } from "./InfoBox";
@@ -44,6 +44,10 @@ export const Canvas = () => {
   const [textBox, setTextBox] = useState(false);
   const [houseIsActive, setHouseIsActive] = useState(false);
   const [moveToCity, setMoveToCity] = useState(false);
+  const [chest, setChest] = useState(chestImg);
+  const [chestInfoBox, setChestInfoBox] = useState(false);
+  const [alert, setAlert] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,6 +63,7 @@ export const Canvas = () => {
 
     ctx.drawImage(img, position.x, position.y);
     ctx.drawImage(npcMap, srcX, srcY, 192 / 4, 68, npcPosition.x, npcPosition.y, 192 / 4, 68);
+    ctx.drawImage(chest, position.x + 1490, position.y + 320);
     ctx.drawImage(playerDirection, srcX, srcY, 192 / 4, 68, canvas.width / 2 - 22, canvas.height / 2, 192 / 4, 68);
     ctx.drawImage(foreground2, position.x, position.y);
     ctx.drawImage(foreground, position.x, position.y);
@@ -164,6 +169,35 @@ export const Canvas = () => {
       }
     });
 
+    let chestMap = [];
+    for (let i = 0; i < chestArray.length; i += 70) {
+      chestMap.push(chestArray.slice(i, i + 70));
+    }
+
+    const chestElements = [];
+    chestMap.forEach((row, i) => {
+      row.forEach((element, j) => {
+        if (element === 1025) {
+          chestElements.push({
+            pos: {
+              x: j * 66 + position.x + 38,
+              y: i * 66 + position.y,
+            },
+          });
+        }
+      });
+    });
+
+    chestElements.forEach((el) => {
+      if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
+        setChestInfoBox(true);
+      } else {
+        setChestInfoBox(false);
+        setAlert(false);
+        setSuccess(false);
+      }
+    });
+
     const keyPress = (e) => {
       let moving = true;
       if (e.key === "w") {
@@ -256,21 +290,36 @@ export const Canvas = () => {
             setTextBox(!textBox);
           }
         });
+
+        chestElements.forEach((el) => {
+          if (isColliding({ value: { x: el.pos.x, y: el.pos.y } }) && e.key === "e") {
+            setChest(openChest);
+
+            if (localStorage.getItem("item") === "https://i.ibb.co/smmJnnk/potion.png") {
+              setAlert(true);
+            } else {
+              localStorage.setItem("item", "https://i.ibb.co/smmJnnk/potion.png");
+              setSuccess(true);
+            }
+          }
+        });
       }
     };
 
     window.addEventListener("keydown", keyPress);
     return () => window.removeEventListener("keydown", keyPress);
   });
-
   return (
     <>
       <Music />
-      <Inventory />
       {infoBox ? <InfoBox /> : null}
       {textBox ? <TextBox /> : null}
       {houseIsActive ? <HouseEnter /> : null}
       {moveToCity ? <MoveToCity /> : null}
+      {chestInfoBox ? <div className="info_box">To interact press 'E' button.</div> : null}
+      {alert ? <div className="alert">The chest is empty.</div> : null}
+      {success ? <div className="success_alert">Congratulations, you've found the item!</div> : null}
+      <Inventory item={localStorage.getItem("item")} />
       <canvas ref={canvasRef} />
     </>
   );

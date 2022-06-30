@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const Inventory = () => {
+export const Inventory = (item) => {
   const [isActive, setIsActive] = useState(false);
 
   const handleClick = () => {
@@ -10,27 +10,37 @@ export const Inventory = () => {
   return (
     <>
       <div className="inventoryBag" onClick={handleClick}></div>
-      {isActive ? <Results /> : null}
+      {isActive ? <Results item={item} /> : null}
     </>
   );
 };
 
-const Results = () => {
+const Results = (item) => {
+  const [showMenu, setShowMenu] = useState(false);
+
   return (
     <div className="inventory">
       <p className="inventory_title">Inventory</p>
       <div className="inventory_wrapper">
-        <div className="box">1</div>
-        <div className="box">2</div>
-        <div className="box">3</div>
-        <div className="box">4</div>
-        <div className="box">5</div>
-        <div className="box">6</div>
-        <div className="box">7</div>
-        <div className="box">8</div>
-        <div className="box">9</div>
-        <div className="box">10</div>
+        <div className="box">
+          <img src={item.item.item} alt="" onClick={() => setShowMenu(!showMenu)} />
+        </div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
+        <div className="box"></div>
       </div>
+      {showMenu ? (
+        <div className="info_box">
+          <div onClick={() => localStorage.clear()}>Use</div>
+          <div onClick={() => localStorage.clear()}>Remove</div>
+        </div>
+      ) : null}
     </div>
   );
 };

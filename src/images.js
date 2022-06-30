@@ -33,3 +33,9 @@ city.src = require("./assets/img/city.png");
 
 export const cityForeground = new Image();
 cityForeground.src = require("./assets/img/cityForeground.png");
+
+export const chestImg = new Image();
+chestImg.src = require("./assets/img/chest.png");
+
+export const openChest = new Image();
+openChest.src = require("./assets/img/chest2.png");
