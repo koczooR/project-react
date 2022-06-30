@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { collisionsArray, textActivationArray, houseActivationArray, moveToCityArray } from "./mapData";
-import { img, foreground, foreground2, playerDown, playerUp, playerLeft, playerRight, npcMap } from "./images";
+import { house, houseForeground, playerDown, playerUp, playerLeft, playerRight } from "./images";
+import { houseCollisionsArray, exitActivationArray, hicksArray } from "./houseData";
 import { Inventory } from "./Inventory";
 import { Music } from "./Music";
-import { InfoBox, HouseEnter, MoveToCity } from "./InfoBox";
-import { TextBox } from "./TextBox";
+import { InfoBox, HouseExit } from "./InfoBox";
 
 const speed = 10;
 
@@ -22,31 +21,26 @@ const playerMovement = () => {
 const isColliding = ({ value }) => {
   return (
     window.innerWidth / 2 - 22 + 192 / 4 >= value.x &&
-    window.innerWidth / 2 - 22 <= value.x + 66 &&
+    window.innerWidth / 2 - 22 <= value.x + 88 &&
     window.innerHeight / 2 + 68 >= value.y &&
-    window.innerHeight / 2 + 68 / 2 <= value.y + 66
+    window.innerHeight / 2 <= value.y + 88
   );
 };
 
-export const Canvas = () => {
-  const canvasRef = useRef();
+export const House = () => {
+  const houseRef = useRef();
   const defaultPosition = {
-    x: window.innerWidth / 2 - 4620 / 2 + 66,
-    y: window.innerHeight / 2 - 2640 / 2,
+    x: window.innerWidth / 2 - 3520 / 2 + 176,
+    y: window.innerHeight / 2 - 3564 / 2 - 132,
   };
   const [position, setPosition] = useState({ ...defaultPosition });
-  const [playerDirection, setPlayerDirection] = useState(playerDown);
-  const [npcPosition, setNpcPosition] = useState({
-    x: window.innerWidth / 2 - 192 / 4 + 716,
-    y: window.innerHeight / 2 - 66,
-  });
-  const [infoBox, setInfoBox] = useState(false);
-  const [textBox, setTextBox] = useState(false);
+  const [playerDirection, setPlayerDirection] = useState(playerUp);
   const [houseIsActive, setHouseIsActive] = useState(false);
-  const [moveToCity, setMoveToCity] = useState(false);
+  const [infoBox, setInfoBox] = useState(false);
+  const [showHicks, setShowHicks] = useState(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = houseRef.current;
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
@@ -57,79 +51,49 @@ export const Canvas = () => {
       framesDrawn = 0;
     }
 
-    ctx.drawImage(img, position.x, position.y);
-    ctx.drawImage(npcMap, srcX, srcY, 192 / 4, 68, npcPosition.x, npcPosition.y, 192 / 4, 68);
+    ctx.drawImage(house, position.x, position.y);
     ctx.drawImage(playerDirection, srcX, srcY, 192 / 4, 68, canvas.width / 2 - 22, canvas.height / 2, 192 / 4, 68);
-    ctx.drawImage(foreground2, position.x, position.y);
-    ctx.drawImage(foreground, position.x, position.y);
+    ctx.drawImage(houseForeground, position.x, position.y);
 
     let borderMap = [];
-    for (let i = 0; i < collisionsArray.length; i += 70) {
-      borderMap.push(collisionsArray.slice(i, i + 70));
+    for (let i = 0; i < houseCollisionsArray.length; i += 40) {
+      borderMap.push(houseCollisionsArray.slice(i, i + 40));
     }
 
     const borderElements = [];
     borderMap.forEach((row, i) => {
       row.forEach((element, j) => {
-        if (element === 1025) {
+        if (element === 770) {
           borderElements.push({
             pos: {
-              x: j * 66 + position.x,
-              y: i * 66 + position.y,
+              x: j * 88 + position.x,
+              y: i * 88 + position.y,
             },
           });
         }
       });
     });
 
-    let textActivationMap = [];
-    for (let i = 0; i < textActivationArray.length; i += 70) {
-      textActivationMap.push(textActivationArray.slice(i, i + 70));
+    let houseExit = [];
+    for (let i = 0; i < exitActivationArray.length; i += 40) {
+      houseExit.push(exitActivationArray.slice(i, i + 40));
     }
 
-    const textActivationElements = [];
-    textActivationMap.forEach((row, i) => {
+    const houseExitElements = [];
+    houseExit.forEach((row, i) => {
       row.forEach((element, j) => {
-        if (element === 1025) {
-          textActivationElements.push({
+        if (element === 770) {
+          houseExitElements.push({
             pos: {
-              x: j * 66 + position.x,
-              y: i * 66 + position.y,
+              x: j * 88 + position.x,
+              y: i * 88 + position.y,
             },
           });
         }
       });
     });
 
-    textActivationElements.forEach((el) => {
-      if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
-        setInfoBox(true);
-      } else {
-        setInfoBox(false);
-        setTextBox(false);
-      }
-    });
-
-    let houseActivationMap = [];
-    for (let i = 0; i < houseActivationArray.length; i += 70) {
-      houseActivationMap.push(houseActivationArray.slice(i, i + 70));
-    }
-
-    const houseActivationElements = [];
-    houseActivationMap.forEach((row, i) => {
-      row.forEach((element, j) => {
-        if (element === 1025) {
-          houseActivationElements.push({
-            pos: {
-              x: j * 66 + position.x,
-              y: i * 66 + position.y,
-            },
-          });
-        }
-      });
-    });
-
-    houseActivationElements.forEach((el) => {
+    houseExitElements.forEach((el) => {
       if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
         setHouseIsActive(true);
       } else {
@@ -137,30 +101,30 @@ export const Canvas = () => {
       }
     });
 
-    let moveToCityMap = [];
-    for (let i = 0; i < moveToCityArray.length; i += 70) {
-      moveToCityMap.push(moveToCityArray.slice(i, i + 70));
+    let hicksMap = [];
+    for (let i = 0; i < hicksArray.length; i += 40) {
+      hicksMap.push(hicksArray.slice(i, i + 40));
     }
 
-    const moveToCityElements = [];
-    moveToCityMap.forEach((row, i) => {
+    const hicksElements = [];
+    hicksMap.forEach((row, i) => {
       row.forEach((element, j) => {
-        if (element === 1025) {
-          moveToCityElements.push({
+        if (element === 770) {
+          hicksElements.push({
             pos: {
-              x: j * 66 + position.x,
-              y: i * 66 + position.y,
+              x: j * 88 + position.x + 50,
+              y: i * 88 + position.y,
             },
           });
         }
       });
     });
 
-    moveToCityElements.forEach((el) => {
+    hicksElements.forEach((el) => {
       if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
-        setMoveToCity(true);
+        setInfoBox(true);
       } else {
-        setMoveToCity(false);
+        setInfoBox(false);
       }
     });
 
@@ -177,10 +141,6 @@ export const Canvas = () => {
         });
         if (moving) {
           setPosition((prevState) => ({
-            ...prevState,
-            y: prevState.y + speed,
-          }));
-          setNpcPosition((prevState) => ({
             ...prevState,
             y: prevState.y + speed,
           }));
@@ -201,10 +161,6 @@ export const Canvas = () => {
             ...prevState,
             y: prevState.y - speed,
           }));
-          setNpcPosition((prevState) => ({
-            ...prevState,
-            y: prevState.y - speed,
-          }));
         }
       }
 
@@ -219,10 +175,6 @@ export const Canvas = () => {
         });
         if (moving) {
           setPosition((prevState) => ({
-            ...prevState,
-            x: prevState.x + speed,
-          }));
-          setNpcPosition((prevState) => ({
             ...prevState,
             x: prevState.x + speed,
           }));
@@ -243,17 +195,31 @@ export const Canvas = () => {
             ...prevState,
             x: prevState.x - speed,
           }));
-          setNpcPosition((prevState) => ({
-            ...prevState,
-            x: prevState.x - speed,
-          }));
         }
       }
 
       if (e.key === "e") {
-        textActivationElements.forEach((el) => {
+        hicksElements.forEach((el) => {
           if (isColliding({ value: { x: el.pos.x, y: el.pos.y } }) && e.key === "e") {
-            setTextBox(!textBox);
+            let counter = 1;
+            setShowHicks(true);
+
+            setTimeout(() => {
+              setShowHicks(false);
+            }, 2000);
+
+            const interval = setInterval(() => {
+              setShowHicks(true);
+              counter++;
+
+              setTimeout(() => {
+                setShowHicks(false);
+              }, 2000);
+
+              if (counter > 4) {
+                clearInterval(interval);
+              }
+            }, 5000);
           }
         });
       }
@@ -267,11 +233,10 @@ export const Canvas = () => {
     <>
       <Music />
       <Inventory />
+      {houseIsActive ? <HouseExit /> : null}
       {infoBox ? <InfoBox /> : null}
-      {textBox ? <TextBox /> : null}
-      {houseIsActive ? <HouseEnter /> : null}
-      {moveToCity ? <MoveToCity /> : null}
-      <canvas ref={canvasRef} />
+      {showHicks ? <p className="hicks">Hicks...</p> : null}
+      <canvas ref={houseRef} />
     </>
   );
 };

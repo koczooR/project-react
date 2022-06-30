@@ -21,3 +21,15 @@ playerRight.src = require("./assets/img/playerRight.png");
 
 export const npcMap = new Image();
 npcMap.src = require("./assets/img/npcMap.png");
+
+export const house = new Image();
+house.src = require("./assets/img/house1_550.png");
+
+export const houseForeground = new Image();
+houseForeground.src = require("./assets/img/house1Foreground.png");
+
+export const city = new Image();
+city.src = require("./assets/img/city.png");
+
+export const cityForeground = new Image();
+cityForeground.src = require("./assets/img/cityForeground.png");
