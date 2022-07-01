@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { collisionsArray, textActivationArray, houseActivationArray, moveToCityArray, chestArray } from "./mapData";
+import { collisionsArray, textActivationArray, houseActivationArray, moveToCityArray, chestArray, otherHouses } from "./mapData";
 import { img, foreground, foreground2, playerDown, playerUp, playerLeft, playerRight, npcMap, chestImg, openChest } from "./images";
 import { Inventory } from "./Inventory";
 import { Music } from "./Music";
@@ -48,6 +48,7 @@ export const Canvas = () => {
   const [chestInfoBox, setChestInfoBox] = useState(false);
   const [alert, setAlert] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [otherHousesActive, setOtherHousesActive] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -139,6 +140,33 @@ export const Canvas = () => {
         setHouseIsActive(true);
       } else {
         setHouseIsActive(false);
+      }
+    });
+
+    let otherHousesMap = [];
+    for (let i = 0; i < otherHouses.length; i += 70) {
+      otherHousesMap.push(otherHouses.slice(i, i + 70));
+    }
+
+    const otherHousesElements = [];
+    otherHousesMap.forEach((row, i) => {
+      row.forEach((element, j) => {
+        if (element === 1025) {
+          otherHousesElements.push({
+            pos: {
+              x: j * 66 + position.x + 33,
+              y: i * 66 + position.y,
+            },
+          });
+        }
+      });
+    });
+
+    otherHousesElements.forEach((el) => {
+      if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
+        setOtherHousesActive(true);
+      } else {
+        setOtherHousesActive(false);
       }
     });
 
@@ -297,6 +325,7 @@ export const Canvas = () => {
 
             if (localStorage.getItem("item") === "https://i.ibb.co/smmJnnk/potion.png") {
               setAlert(true);
+              setSuccess(false);
             } else {
               localStorage.setItem("item", "https://i.ibb.co/smmJnnk/potion.png");
               setSuccess(true);
@@ -315,11 +344,12 @@ export const Canvas = () => {
       {infoBox ? <InfoBox /> : null}
       {textBox ? <TextBox /> : null}
       {houseIsActive ? <HouseEnter /> : null}
+      {otherHousesActive ? <div className="house_enter_text">Work in Progress...</div> : null}
       {moveToCity ? <MoveToCity /> : null}
       {chestInfoBox ? <div className="info_box">To interact press 'E' button.</div> : null}
       {alert ? <div className="alert">The chest is empty.</div> : null}
       {success ? <div className="success_alert">Congratulations, you've found the item!</div> : null}
-      <Inventory item={localStorage.getItem("item")} />
+      <Inventory />
       <canvas ref={canvasRef} />
     </>
   );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const Inventory = (item) => {
+export const Inventory = () => {
   const [isActive, setIsActive] = useState(false);
 
   const handleClick = () => {
@@ -10,12 +10,12 @@ export const Inventory = (item) => {
   return (
     <>
       <div className="inventoryBag" onClick={handleClick}></div>
-      {isActive ? <Results item={item} /> : null}
+      {isActive ? <Results /> : null}
     </>
   );
 };
 
-const Results = (item) => {
+const Results = () => {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
@@ -23,7 +23,7 @@ const Results = (item) => {
       <p className="inventory_title">Inventory</p>
       <div className="inventory_wrapper">
         <div className="box">
-          <img src={item.item.item} alt="" onClick={() => setShowMenu(!showMenu)} />
+          <img src={localStorage.getItem("item")} alt="" onClick={() => setShowMenu(!showMenu)} />
         </div>
         <div className="box"></div>
         <div className="box"></div>
