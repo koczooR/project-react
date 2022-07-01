@@ -5,6 +5,7 @@ import { Inventory } from "./Inventory";
 import { Music } from "./Music";
 import { InfoBox, HouseExit } from "./InfoBox";
 import { NpcInteractTextBox } from "./TextBox";
+import sound from "./assets/music/hiccup.mp3";
 
 const speed = 10;
 
@@ -13,6 +14,9 @@ let currentFrame = 0;
 let framesDrawn = 0;
 let srcX = 0;
 let srcY = 0;
+
+const audio = new Audio(sound);
+audio.volume = 0.1;
 
 const playerMovement = () => {
   currentFrame = currentFrame % totalFrames;
@@ -232,6 +236,7 @@ export const House = () => {
       if (e.key === "e") {
         hicksElements.forEach((el) => {
           if (isColliding({ value: { x: el.pos.x, y: el.pos.y } }) && e.key === "e") {
+            audio.play();
             let counter = 1;
             setShowHicks(true);
 
@@ -241,6 +246,7 @@ export const House = () => {
 
             const interval = setInterval(() => {
               setShowHicks(true);
+              audio.play();
               counter++;
 
               setTimeout(() => {
