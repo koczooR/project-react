@@ -1,7 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Open Sans", sans-serif;
 }
 
 body {
@@ -156,7 +159,7 @@ body {
 
 .text_box {
   position: absolute;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   border: 2px solid #000;
   font-size: 1.25rem;
   font-weight: bold;
@@ -165,7 +168,52 @@ body {
   text-align: center;
   line-height: 1.5rem;
   width: 80%;
-  bottom: 1rem;
+  bottom: 4rem;
+}
+
+.npc_interact_text_box {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #000;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 1rem;
+  text-align: left;
+  line-height: 1.75rem;
+  width: 50%;
+  bottom: 4rem;
+  font-size: 1.5rem;
+
+  a {
+    text-decoration: none;
+    color: #000;
+    transition: 0.2s;
+
+    &:hover {
+      color: green;
+      transform: scale(1.2);
+    }
+  }
+
+  &__wrapper {
+    div {
+      text-align: center;
+      border: 1px solid #000;
+      border-radius: 10px;
+      padding: 0.25rem 1rem;
+      margin: 0.25rem;
+      cursor: pointer;
+      transition: 0.2s;
+
+      &:hover {
+        color: green;
+      }
+    }
+  }
 }
 
 .house_enter_text {

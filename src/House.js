@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { house, houseForeground, playerDown, playerUp, playerLeft, playerRight } from "./images";
-import { houseCollisionsArray, exitActivationArray, hicksArray } from "./houseData";
+import { houseCollisionsArray, exitActivationArray, hicksArray, npcInteractArray } from "./houseData";
 import { Inventory } from "./Inventory";
 import { Music } from "./Music";
 import { InfoBox, HouseExit } from "./InfoBox";
+import { NpcInteractTextBox } from "./TextBox";
 
 const speed = 10;
 
@@ -38,6 +39,8 @@ export const House = () => {
   const [houseIsActive, setHouseIsActive] = useState(false);
   const [infoBox, setInfoBox] = useState(false);
   const [showHicks, setShowHicks] = useState(false);
+  const [showInfoBox, setShowInfoBox] = useState(false);
+  const [textBox, setTextBox] = useState(false);
 
   useEffect(() => {
     const canvas = houseRef.current;
@@ -125,6 +128,34 @@ export const House = () => {
         setInfoBox(true);
       } else {
         setInfoBox(false);
+      }
+    });
+
+    let npcInteractMap = [];
+    for (let i = 0; i < npcInteractArray.length; i += 40) {
+      npcInteractMap.push(npcInteractArray.slice(i, i + 40));
+    }
+
+    const npcInteractElements = [];
+    npcInteractMap.forEach((row, i) => {
+      row.forEach((element, j) => {
+        if (element === 770) {
+          npcInteractElements.push({
+            pos: {
+              x: j * 88 + position.x,
+              y: i * 88 + position.y,
+            },
+          });
+        }
+      });
+    });
+
+    npcInteractElements.forEach((el) => {
+      if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
+        setShowInfoBox(true);
+      } else {
+        setShowInfoBox(false);
+        setTextBox(false);
       }
     });
 
@@ -222,6 +253,14 @@ export const House = () => {
             }, 5000);
           }
         });
+
+        npcInteractElements.forEach((el) => {
+          if (isColliding({ value: { x: el.pos.x, y: el.pos.y } }) && e.key === "e") {
+            setTextBox(true);
+          } else {
+            setTextBox(false);
+          }
+        });
       }
     };
 
@@ -233,9 +272,11 @@ export const House = () => {
     <>
       <Music />
       <Inventory />
-      {houseIsActive ? <HouseExit /> : null}
       {infoBox ? <InfoBox /> : null}
+      {showInfoBox ? <div className="info_box">To interact press 'E' button.</div> : null}
+      {textBox ? <NpcInteractTextBox /> : null}
       {showHicks ? <p className="hicks">Hicks...</p> : null}
+      {houseIsActive ? <HouseExit /> : null}
       <canvas ref={houseRef} />
     </>
   );
