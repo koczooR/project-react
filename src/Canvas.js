@@ -162,13 +162,11 @@ export const Canvas = () => {
       });
     });
 
-    otherHousesElements.forEach((el) => {
-      if (isColliding({ value: { x: el.pos.x, y: el.pos.y } })) {
-        setOtherHousesActive(true);
-      } else {
-        setOtherHousesActive(false);
-      }
-    });
+    setOtherHousesActive(
+      otherHousesElements.some((el) => {
+        return isColliding({ value: { x: el.pos.x, y: el.pos.y } });
+      })
+    );
 
     let moveToCityMap = [];
     for (let i = 0; i < moveToCityArray.length; i += 70) {
