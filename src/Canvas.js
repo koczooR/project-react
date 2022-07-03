@@ -335,7 +335,7 @@ export const Canvas = () => {
 
     window.addEventListener("keydown", keyPress);
     return () => window.removeEventListener("keydown", keyPress);
-  });
+  }, [position.x, position.y, npcPosition.x, npcPosition.y, chest, playerDirection, textBox]);
   return (
     <>
       <Music />
